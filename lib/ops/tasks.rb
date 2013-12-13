@@ -49,7 +49,7 @@ namespace :ops do
     STDOUT.print "Deploying"
     loop do
       STDOUT.print "."
-      break unless deployment.finished?
+      break if deployment.finished?
       sleep 5
     end
 
