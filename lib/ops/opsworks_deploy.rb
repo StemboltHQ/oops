@@ -21,7 +21,7 @@ module Ops class OpsworksDeploy
       end
 
       def status
-        @client.describe_deployments(deployment_ids: [deployment.deployment_id]).deployments[0].status
+        @client.describe_deployments(deployment_ids: [@deployment.deployment_id]).deployments[0].status
       end
 
       def failed?
