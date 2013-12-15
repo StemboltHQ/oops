@@ -1,7 +1,7 @@
-module Ops
+module Oops
   class Railtie < ::Rails::Railtie
     rake_tasks do
-      load 'ops/tasks.rb'
+      load 'oops/tasks.rb'
     end
   end
 end

@@ -1,4 +1,4 @@
-module Ops class OpsworksDeploy
+module Oops class OpsworksDeploy
     attr_accessor :stack_name, :app_name
 
     def initialize(app_name, stack_name)

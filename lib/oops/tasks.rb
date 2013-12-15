@@ -1,6 +1,6 @@
-require 'ops/opsworks_deploy'
+require 'oops/opsworks_deploy'
 require 'aws'
-namespace :ops do
+namespace :oops do
   task :build, :ref do |t, args|
     args.with_defaults ref: build_hash
 
@@ -42,7 +42,7 @@ namespace :ops do
       raise "Artifact \"#{file_url}\" doesn't seem to exist\nMake sure you've run `RAILS_ENV=deploy rake opsworks:build opsworks:upload` before deploying"
     end
 
-    ops = Ops::OpsworksDeploy.new args.app_name, args.stack_name
+    ops = Oops::OpsworksDeploy.new args.app_name, args.stack_name
     deployment = ops.deploy(file_url)
 
     STDOUT.sync = true
