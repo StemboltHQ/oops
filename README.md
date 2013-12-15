@@ -23,13 +23,19 @@ Or install it yourself as:
 Variables are passed into ops using both environment variables and rake arguements.
 
 To create a build:
+    ```
     AWS_ACCESS_KEY_ID=MY_ACCESS_KEY AWS_SECRET_ACCESS_KEY=MY_SECRET_KEY DEPLOY_BUCKET=oops-deploy PACKAGE_FOLDER=opsbuilds bundle exec rake oops:build
+    ```
 
 To upload a build:
+    ```
     AWS_ACCESS_KEY_ID=MY_ACCESS_KEY AWS_SECRET_ACCESS_KEY=MY_SECRET_KEY DEPLOY_BUCKET=oops-deploy PACKAGE_FOLDER=opsbuilds bundle exec rake oops:upload
+    ```
 
 To deploy a build:
+    ```
     AWS_ACCESS_KEY_ID=MY_ACCESS_KEY AWS_SECRET_ACCESS_KEY=MY_SECRET_KEY DEPLOY_BUCKET=oops-deploy PACKAGE_FOLDER=opsbuilds bundle exec rake oops:deploy[my_application_name,my_stack_name]
+    ```
 
 By default, these tasks will all deploy what is in your current HEAD, but can also be passed an optional ref to deploy a specific revision.
 
