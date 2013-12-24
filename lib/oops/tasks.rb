@@ -1,7 +1,7 @@
 require 'oops/opsworks_deploy'
 require 'aws'
 namespace :oops do
-  task :build, :ref do |t, args|
+  task :build, [:ref] => 'assets:precompile' do |t, args|
     args.with_defaults ref: build_hash
 
     file_path = zip_file args.ref
@@ -9,11 +9,10 @@ namespace :oops do
     sh %{mkdir -p build}
     sh %{git archive --format zip --output build/#{file_path} HEAD}
 
-    sh %{rm -rf public/assets}
-    sh %{rake assets:precompile:all RAILS_ENV=deploy RAILS_GROUPS=assets}
-
     sh %{zip -r -g build/#{file_path} public/}
     sh %{zip build/#{file_path} -d .gitignore}
+
+    sh %{rm -rf public/assets}
 
     puts "Packaged Application: #{file_path}"
   end
