@@ -39,13 +39,17 @@ module Oops class OpsworksDeploy
     private
 
     def stack_id
-      @stack_id ||= @client.describe_stacks[:stacks].detect { |x| x[:name] == stack_name }[:stack_id]
+      @stack_id ||= get_by_name(@client.describe_stacks[:stacks], stack_name)[:stack_id]
     end
 
     def app_id
-      @app_id ||= @client.describe_apps(stack_id: stack_id)[:apps].detect { |x| x[:name] == app_name }[:app_id]
+      @app_id ||= get_by_name(@client.describe_apps(stack_id: stack_id)[:apps], app_name)[:app_id]
     end
 
+    def get_by_name collection, name
+      collection.detect do |x|
+        x[:name] == name
+      end || abort("Can't find #{name.inspect} among #{collection.map{|x| x[:name] }.inspect}")
+    end
   end
-
 end
