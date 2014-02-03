@@ -1,10 +1,10 @@
 require 'oops/opsworks_deploy'
 require 'aws'
 namespace :oops do
-  task :build, [:ref] => 'assets:precompile' do |t, args|
-    args.with_defaults ref: build_hash
+  task :build, [:filename] => 'assets:precompile' do |t, args|
+    args.with_defaults filename: default_filename
 
-    file_path = zip_file args.ref
+    file_path = args.filename
 
     sh %{mkdir -p build}
     sh %{git archive --format zip --output build/#{file_path} HEAD}
@@ -17,10 +17,10 @@ namespace :oops do
     puts "Packaged Application: #{file_path}"
   end
 
-  task :upload, :ref do |t, args|
-    args.with_defaults ref: build_hash
+  task :upload, :filename do |t, args|
+    args.with_defaults filename: default_filename
 
-    file_path = zip_file args.ref
+    file_path = args.filename
     s3 = s3_object(file_path)
 
     puts "Starting upload..."
@@ -28,11 +28,11 @@ namespace :oops do
     puts "Uploaded Application: #{s3.url_for(:read)}"
   end
 
-  task :deploy, :app_name, :stack_name, :ref do |t, args|
+  task :deploy, :app_name, :stack_name, :filename do |t, args|
     raise "app_name variable is required" unless (app_name = args.app_name)
     raise "stack_name variable is required" unless (stack_name = args.stack_name)
-    args.with_defaults ref: build_hash
-    file_path = zip_file args.ref
+    args.with_defaults filename: default_filename
+    file_path = args.filename
     file_url = s3_url file_path
 
     ENV['AWS_REGION'] = 'us-east-1'
@@ -69,8 +69,8 @@ namespace :oops do
     @build_hash ||= `git rev-parse HEAD`.strip
   end
 
-  def zip_file ref
-    "git-#{ref}.zip"
+  def default_filename
+    "git-#{build_hash}.zip"
   end
 
   def package_folder
