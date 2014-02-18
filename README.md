@@ -39,6 +39,19 @@ To deploy a build:
 
 By default, these tasks will all deploy what is in your current HEAD, but can also be passed an optional ref to deploy a specific revision.
 
+## OpsWorks Permissions
+
+It is good practice to configure a specific IAM user for deployments. For more details see the [Security and Permissions section](http://docs.aws.amazon.com/opsworks/latest/userguide/workingsecurity.html) of the [AWS OpsWorks User Guide](http://docs.aws.amazon.com/opsworks/latest/userguide/welcome.html)
+
+Actions needed for oops to run are:
+
+* opsworks:DescribeStacks
+* opsworks:DescribeApps
+* opsworks:DescribeDeployments
+* opsworks:UpdateApp
+* opsworks:DescribeInstances
+* opsworks:CreateDeployment
+
 ## Contributing
 
 1. Fork it
