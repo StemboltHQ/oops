@@ -10,6 +10,7 @@ namespace :oops do
     sh %{git archive --format zip --output build/#{file_path} HEAD}
 
     sh %{zip -r -g build/#{file_path} public/}
+    sh %{zip -r -g build/#{file_path} .env*}
     sh %{zip build/#{file_path} -d .gitignore}
 
     sh %{rm -rf public/assets}
