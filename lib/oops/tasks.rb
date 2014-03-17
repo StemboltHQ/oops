@@ -1,22 +1,59 @@
 require 'oops/opsworks_deploy'
 require 'aws'
-namespace :oops do
-  task :build, [:filename] => 'assets:precompile' do |t, args|
-    args.with_defaults filename: default_filename
 
-    file_path = args.filename
+module Oops
+  class Tasks
+    attr_accessor :prerequisites, :additional_paths
 
-    sh %{mkdir -p build}
-    sh %{git archive --format zip --output build/#{file_path} HEAD}
+    DEFAULTS = {
+      prerequisites: ['assets:precompile'],
+      additional_paths: []
+    }
 
-    sh %{zip -r -g build/#{file_path} public/}
-    sh %{zip build/#{file_path} -d .gitignore}
+    def initialize(&block)
+      DEFAULTS.each do |key, value|
+        public_send("#{key}=", value)
+      end
+      yield(self)
+      create_task!
+    end
 
-    sh %{rm -rf public/assets}
+    private
+    include Rake::DSL
+    def create_task!
+      # Remove any existing definition
+      Rake::Task["oops:build"].clear if Rake::Task.task_defined?("oops:build")
 
-    puts "Packaged Application: #{file_path}"
+      namespace :oops do
+        task :build, [:filename] => prerequisites do |t, args|
+          args.with_defaults filename: default_filename
+
+          file_path = args.filename
+
+          sh %{mkdir -p build}
+          sh %{git archive --format zip --output build/#{file_path} HEAD}
+
+          additional_paths.each do |path|
+            sh %{zip -r -g build/#{file_path} #{path}}
+          end
+
+          sh %{zip -r -g build/#{file_path} public/}
+          sh %{zip build/#{file_path} -d .gitignore}
+
+          sh %{rm -rf public/assets}
+
+          puts "Packaged Application: #{file_path}"
+        end
+      end
+    end
   end
+end
 
+# Initialize build task with defaults
+Oops::Tasks.new do
+end
+
+namespace :oops do
   task :upload, :filename do |t, args|
     args.with_defaults filename: default_filename
 
