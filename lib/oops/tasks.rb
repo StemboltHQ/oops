@@ -1,5 +1,6 @@
 require 'oops/opsworks_deploy'
 require 'aws'
+require 'rake'
 
 module Oops
   class Tasks
