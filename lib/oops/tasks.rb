@@ -4,15 +4,19 @@ require 'rake'
 
 module Oops
   class Tasks
-    attr_accessor :prerequisites, :additional_paths
+    attr_accessor :prerequisites, :additional_paths, :includes, :excludes
 
-    DEFAULTS = {
-      prerequisites: ['assets:precompile'],
-      additional_paths: []
-    }
+    def self.default_args
+      {
+        prerequisites: ['assets:clean', 'assets:precompile'],
+        additional_paths: [],
+        includes: ['public/assets'],
+        excludes: ['.gitignore']
+      }
+    end
 
     def initialize(&block)
-      DEFAULTS.each do |key, value|
+      self.class.default_args.each do |key, value|
         public_send("#{key}=", value)
       end
       yield(self)
@@ -34,14 +38,13 @@ module Oops
           sh %{mkdir -p build}
           sh %{git archive --format zip --output build/#{file_path} HEAD}
 
-          additional_paths.each do |path|
-            sh %{zip -r -g build/#{file_path} #{path}}
+          (includes + additional_paths).each do |path|
+            sh *%W[zip -r -g build/#{file_path} #{path}]
           end
 
-          sh %{zip -r -g build/#{file_path} public/}
-          sh %{zip build/#{file_path} -d .gitignore}
-
-          sh %{rm -rf public/assets}
+          excludes.each do |path|
+            sh *%W[zip build/#{file_path} -d #{path}]
+          end
 
           puts "Packaged Application: #{file_path}"
         end
