@@ -4,14 +4,15 @@ require 'rake'
 
 module Oops
   class Tasks
-    attr_accessor :prerequisites, :additional_paths, :includes, :excludes
+    attr_accessor :prerequisites, :additional_paths, :includes, :excludes, :format
 
     def self.default_args
       {
         prerequisites: ['assets:clean', 'assets:precompile'],
         additional_paths: [],
         includes: ['public/assets'],
-        excludes: ['.gitignore']
+        excludes: ['.gitignore'],
+        format: 'zip'
       }
     end
 
@@ -21,6 +22,22 @@ module Oops
       end
       yield(self)
       create_task!
+    end
+
+    def add_file file_path, path
+      if format == 'zip'
+        sh *%W{zip -r -g build/#{file_path} #{path}}
+      elsif format == 'tar'
+        sh *%W{tar -r -f build/#{file_path} #{path}}
+      end
+    end
+
+    def remove_file file_path, path
+      if format == 'zip'
+        sh *%W{zip build/#{file_path} -d #{path}}
+      elsif format == 'tar'
+        sh *%W{tar --delete -f build/#{file_path} #{path}}
+      end
     end
 
     private
@@ -36,14 +53,14 @@ module Oops
           file_path = args.filename
 
           sh %{mkdir -p build}
-          sh %{git archive --format zip --output build/#{file_path} HEAD}
+          sh %{git archive --format #{format} --output build/#{file_path} HEAD}
 
           (includes + additional_paths).each do |path|
-            sh *%W[zip -r -g build/#{file_path} #{path}]
+            add_file file_path, path
           end
 
           excludes.each do |path|
-            sh *%W[zip build/#{file_path} -d #{path}]
+            remove_file file_path, path
           end
 
           puts "Packaged Application: #{file_path}"
@@ -111,7 +128,7 @@ namespace :oops do
   end
 
   def default_filename
-    ENV['PACKAGE_FILENAME'] || "git-#{build_hash}.zip"
+    ENV['PACKAGE_FILENAME'] || "git-#{build_hash}.#{format}"
   end
 
   def package_folder
