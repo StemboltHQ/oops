@@ -128,7 +128,7 @@ namespace :oops do
   end
 
   def default_filename
-    ENV['PACKAGE_FILENAME'] || "git-#{build_hash}.#{format}"
+    ENV['PACKAGE_FILENAME'] || "git-#{build_hash}.zip"
   end
 
   def package_folder
