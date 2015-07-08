@@ -4,22 +4,27 @@ require 'rake'
 
 module Oops
   class Tasks
-    attr_accessor :prerequisites, :additional_paths, :includes, :excludes, :format
+    cattr_accessor :prerequisites do
+      ['assets:clean', 'assets:precompile']
+    end
 
-    def self.default_args
-      {
-        prerequisites: ['assets:clean', 'assets:precompile'],
-        additional_paths: [],
-        includes: ['public/assets'],
-        excludes: ['.gitignore'],
-        format: 'zip'
-      }
+    cattr_accessor :additional_paths do
+      []
+    end
+
+    cattr_accessor :includes do
+      ['public/assets']
+    end
+
+    cattr_accessor :excludes do
+      ['.gitignore']
+    end
+
+    cattr_accessor :format do
+      'zip'
     end
 
     def initialize(&block)
-      self.class.default_args.each do |key, value|
-        public_send("#{key}=", value)
-      end
       yield(self)
       create_task!
     end
