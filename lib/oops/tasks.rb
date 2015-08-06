@@ -1,5 +1,5 @@
 require 'oops/opsworks_deploy'
-require 'aws'
+require 'aws-sdk'
 require 'rake'
 
 module Oops
@@ -82,8 +82,8 @@ namespace :oops do
     s3 = s3_object(file_path)
 
     puts "Starting upload..."
-    s3.write(file: "build/#{file_path}")
-    puts "Uploaded Application: #{s3.url_for(:read)}"
+    s3.upload_file("build/#{file_path}")
+    puts "Uploaded Application: #{s3.public_url}"
   end
 
   task :deploy, :app_name, :stack_name, :filename do |t, args|
@@ -116,7 +116,8 @@ namespace :oops do
 
   private
   def s3_object file_path
-    AWS::S3.new.buckets[bucket_name].objects["#{package_folder}/#{file_path}"]
+    s3 = Aws::S3::Resource.new
+    s3.bucket(bucket_name).object("#{package_folder}/#{file_path}")
   end
 
   def s3_url file_path
