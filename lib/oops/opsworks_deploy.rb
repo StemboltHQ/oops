@@ -3,7 +3,7 @@ module Oops
     attr_accessor :stack_name, :app_name
 
     def initialize(app_name, stack_name)
-      @client = Aws::OpsWorks::Client.new
+      @client = Aws::OpsWorks::Client.new region: 'us-east-1'
       self.stack_name = stack_name
       self.app_name = app_name
     end
