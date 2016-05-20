@@ -93,7 +93,7 @@ namespace :oops do
     file_path = args.filename
     file_url = s3_url file_path
 
-    ENV['AWS_REGION'] = 'us-east-1'
+    ENV['AWS_REGION'] ||= 'us-east-1'
 
     if !s3_object(file_path).exists?
       raise "Artifact \"#{file_url}\" doesn't seem to exist\nMake sure you've run `RAILS_ENV=deploy rake opsworks:build opsworks:upload` before deploying"
