@@ -48,7 +48,7 @@ module Oops
 
       namespace :oops do
         task :build, [:filename] => prerequisites do |t, args|
-          args.with_defaults filename: default_filename
+          args.with_defaults filename: oops_default_filename
 
           file_path = args.filename
 
@@ -76,10 +76,10 @@ end
 
 namespace :oops do
   task :upload, :filename do |t, args|
-    args.with_defaults filename: default_filename
+    args.with_defaults filename: oops_default_filename
 
     file_path = args.filename
-    s3 = s3_object(file_path)
+    s3 = oops_s3_object(file_path)
 
     puts "Starting upload..."
     s3.upload_file("build/#{file_path}")
@@ -89,13 +89,13 @@ namespace :oops do
   task :deploy, :app_name, :stack_name, :filename do |t, args|
     raise "app_name variable is required" unless (app_name = args.app_name)
     raise "stack_name variable is required" unless (stack_name = args.stack_name)
-    args.with_defaults filename: default_filename
+    args.with_defaults filename: oops_default_filename
     file_path = args.filename
-    file_url = s3_url file_path
+    file_url = oops_s3_url file_path
 
     ENV['AWS_REGION'] ||= 'us-east-1'
 
-    if !s3_object(file_path).exists?
+    if !oops_s3_object(file_path).exists?
       raise "Artifact \"#{file_url}\" doesn't seem to exist\nMake sure you've run `RAILS_ENV=deploy rake opsworks:build opsworks:upload` before deploying"
     end
 
@@ -115,29 +115,29 @@ namespace :oops do
   end
 
   private
-  def s3_object file_path
+  def oops_s3_object file_path
     s3 = Aws::S3::Resource.new
-    s3.bucket(bucket_name).object("#{package_folder}/#{file_path}")
+    s3.bucket(oops_bucket_name).object("#{oops_package_folder}/#{file_path}")
   end
 
-  def s3_url file_path
-    s3_object(file_path).public_url.to_s
+  def oops_s3_url file_path
+    oops_s3_object(file_path).public_url.to_s
   end
 
-  def build_hash
-    @build_hash ||= `git rev-parse HEAD`.strip
+  def oops_build_hash
+    @oops_build_hash ||= `git rev-parse HEAD`.strip
   end
 
-  def default_filename
-    ENV['PACKAGE_FILENAME'] || "git-#{build_hash}.zip"
+  def oops_default_filename
+    ENV['PACKAGE_FILENAME'] || "git-#{oops_build_hash}.zip"
   end
 
-  def package_folder
+  def oops_package_folder
     raise "PACKAGE_FOLDER environment variable required" unless ENV['PACKAGE_FOLDER']
     ENV['PACKAGE_FOLDER']
   end
 
-  def bucket_name
+  def oops_bucket_name
     raise "DEPLOY_BUCKET environment variable required" unless ENV['DEPLOY_BUCKET']
     ENV['DEPLOY_BUCKET']
   end
