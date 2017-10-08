@@ -47,6 +47,7 @@ module Oops
       Rake::Task["oops:build"].clear if Rake::Task.task_defined?("oops:build")
 
       namespace :oops do
+        desc 'Build project as filename'
         task :build, [:filename] => prerequisites do |t, args|
           args.with_defaults filename: oops_default_filename
 
@@ -75,6 +76,7 @@ Oops::Tasks.new do
 end
 
 namespace :oops do
+  desc 'Upload file by path from build to S3'
   task :upload, :filename do |t, args|
     args.with_defaults filename: oops_default_filename
 
@@ -86,6 +88,7 @@ namespace :oops do
     puts "Uploaded Application: #{s3.public_url}"
   end
 
+  desc 'Deploy application by opsworks name and stack'
   task :deploy, :app_name, :stack_name, :filename do |t, args|
     raise "app_name variable is required" unless (app_name = args.app_name)
     raise "stack_name variable is required" unless (stack_name = args.stack_name)
